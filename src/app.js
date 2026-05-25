@@ -6,6 +6,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
 const { connectDB } = require('./config/database');
 const redis = require('./utils/redis');
+const { initData } = require('./initData');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.static('public'));
 app.use('/api', routes);
 
 app.use(errorHandler);
@@ -32,10 +34,14 @@ const startServer = async () => {
     await redis.connect();
     logger.info('Redis connected successfully');
 
+    await initData();
+    logger.info('Demo data initialized');
+
     const port = config.port || 3000;
     app.listen(port, () => {
-      logger.info(`Server is running on port ${port}`);
-      logger.info(`Health check: http://localhost:${port}/api/health`);
+      logger.info(`✅ 服务器已启动成功！`);
+      logger.info(`🌐 访问地址: http://localhost:${port}`);
+      logger.info(`🏥 健康检查: http://localhost:${port}/api/health`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

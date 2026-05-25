@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, query } = require('express-validator');
-const folderController = require('../controllers/FolderController');
+const folderController = require('../controllers/SimpleFolderController');
 
 const router = express.Router();
 

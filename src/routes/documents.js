@@ -1,6 +1,6 @@
 const express = require('express');
 const { body, query } = require('express-validator');
-const documentController = require('../controllers/DocumentController');
+const documentController = require('../controllers/SimpleDocumentController');
 
 const router = express.Router();
 
@@ -31,9 +31,5 @@ router.post('/:id/copy', [
 router.post('/:id/move', [
   body('targetFolderId').optional().isInt().withMessage('Target folder ID must be an integer'),
 ], documentController.moveDocument);
-
-router.post('/sync', [
-  body('feishuFileToken').notEmpty().withMessage('Feishu file token is required'),
-], documentController.syncDocument);
 
 module.exports = router;
