@@ -3,6 +3,7 @@ const { sequelize } = require('../config/database');
 const redis = require('../utils/redis');
 const documentsRouter = require('./documents');
 const foldersRouter = require('./folders');
+const sheetsRouter = require('./sheets');
 
 const router = express.Router();
 
@@ -35,5 +36,6 @@ router.get('/health', async (req, res) => {
 
 router.use('/documents', documentsRouter);
 router.use('/folders', foldersRouter);
+router.use('/sheets', sheetsRouter);
 
 module.exports = router;

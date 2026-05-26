@@ -18,6 +18,8 @@ router.get('/:id', documentController.getDocument);
 
 router.get('/:id/content', documentController.getDocumentContent);
 
+router.get('/:id/download', documentController.downloadDocument);
+
 router.put('/:id', [
   body('title').optional().notEmpty().withMessage('Title cannot be empty'),
 ], documentController.updateDocument);

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子表格管理 - 飞书云文档管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h1::before {
+            content: '📊';
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            width: auto;
+            margin-bottom: 0;
+        }
+
+        .spreadsheet-list {
+            display: grid;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .spreadsheet-item {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .spreadsheet-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .spreadsheet-item.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .spreadsheet-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .spreadsheet-token {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .sheet-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e4e8ec;
+        }
+
+        .sheet-tab {
+            background: #e4e8ec;
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sheet-tab:hover {
+            background: #d1d5db;
+        }
+
+        .sheet-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sheet-tab .delete-btn {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sheet-tab:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .grid-container {
+            overflow-x: auto;
+            border: 1px solid #e4e8ec;
+            border-radius: 8px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 0;
+            min-width: max-content;
+        }
+
+        .grid-cell {
+            border: 1px solid #e4e8ec;
+            padding: 8px 12px;
+            min-width: 120px;
+            min-height: 40px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .grid-cell:hover {
+            background: #f3f4f6;
+        }
+
+        .grid-cell.selected {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+        .grid-cell.header {
+            background: #f3f4f6;
+            font-weight: 600;
+            text-align: center;
+            color: #374151;
+        }
+
+        .grid-cell input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding-right: 15px;
+            border-right: 2px solid #e4e8ec;
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .input-field {
+            padding: 10px 15px;
+            border: 2px solid #e4e8ec;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .range-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .range-inputs .input-field {
+            flex: 1;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #374151;
+            margin: 20px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e4e8ec;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>电子表格管理</h1>
+            <p class="subtitle">基于飞书电子表格API的在线表格管理与操作平台</p>
+            <a href="/" class="back-btn">← 返回首页</a>
+        </header>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📋 电子表格列表</h2>
+                <button class="btn btn-success" onclick="openCreateModal()">+ 新建电子表格</button>
+                <div class="spreadsheet-list" id="spreadsheet-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div id="spreadsheet-detail">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>请选择一个电子表格开始编辑</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="create-modal">
+        <div class="modal-content">
+            <h3>新建电子表格</h3>
+            <div class="form-group">
+                <label>表格标题</label>
+                <input type="text" class="input-field" id="new-title" placeholder="请输入表格标题" style="width: 100%;">
+            </div>
+            <div class="form-group">
+                <label>文件夹Token（可选）</label>
+                <input type="text" class="input-field" id="new-folder-token" placeholder="请输入文件夹Token" style="width: 100%;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" onclick="createSpreadsheet()">创建</button>
+                <button class="btn" onclick="closeModal('create-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="add-sheet-modal">
+        <div class="modal-content">
+            <h3>新建工作表</h3>
+            <div class="form-group">
+                <label>工作表名称</label>
+                <input type="text" class="input-field" id="new-sheet-title" placeholder="请输入工作表名称" style="width: 100%;">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" onclick="addSheet()">创建</button>
+                <button class="btn" onclick="closeModal('add-sheet-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="find-replace-modal">
+        <div class="modal-content">
+            <h3>查找和替换</h3>
+            <div class="form-group">
+                <label>查找内容</label>
+                <input type="text" class="input-field" id="find-text" placeholder="请输入要查找的内容" style="width: 100%;">
+            </div>
+            <div class="form-group">
+                <label>替换为</label>
+                <input type="text" class="input-field" id="replace-text" placeholder="请输入替换内容" style="width: 100%;">
+            </div>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" id="match-case"> 区分大小写
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="match-entire-cell"> 匹配整个单元格
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" id="search-by-regex"> 使用正则表达式
+                </label>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-warning" onclick="findAndReplace()">全部替换</button>
+                <button class="btn" onclick="closeModal('find-replace-modal')">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentSpreadsheet = null;
+        let currentSheet = null;
+        let spreadsheets = [];
+        let sheets = [];
+        let gridData = [];
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        async function loadSpreadsheets() {
+            try {
+                const response = await fetch('/api/sheets');
+                const result = await response.json();
+                spreadsheets = result.data || [];
+                renderSpreadsheetList();
+            } catch (error) {
+                console.error('Load spreadsheets error:', error);
+                showToast('加载电子表格列表失败', 'error');
+            }
+        }
+
+        function renderSpreadsheetList() {
+            const container = document.getElementById('spreadsheet-list');
+            
+            if (spreadsheets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>暂无电子表格，点击上方按钮创建</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = spreadsheets.map(sheet => `
+                <div class="spreadsheet-item ${currentSpreadsheet?.spreadsheet_token === sheet.spreadsheet_token ? 'active' : ''}" 
+                     onclick="selectSpreadsheet('${sheet.spreadsheet_token}')">
+                    <div class="spreadsheet-title">📊 ${sheet.title}</div>
+                    <div class="spreadsheet-token">${sheet.spreadsheet_token}</div>
+                </div>
+            `).join('');
+        }
+
+        function openCreateModal() {
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-folder-token').value = '';
+            openModal('create-modal');
+        }
+
+        async function createSpreadsheet() {
+            const title = document.getElementById('new-title').value.trim();
+            const folderToken = document.getElementById('new-folder-token').value.trim();
+            
+            if (!title) {
+                showToast('请输入表格标题', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/sheets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, folderToken: folderToken || null })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('电子表格创建成功！');
+                    closeModal('create-modal');
+                    await loadSpreadsheets();
+                    await selectSpreadsheet(result.data.spreadsheet_token);
+                } else {
+                    showToast('创建失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('Create spreadsheet error:', error);
+                showToast('创建失败：' + error.message, 'error');
+            }
+        }
+
+        async function selectSpreadsheet(spreadsheetToken) {
+            try {
+                currentSpreadsheet = spreadsheets.find(s => s.spreadsheet_token === spreadsheetToken);
+                
+                const response = await fetch(`/api/sheets/${spreadsheetToken}/sheets`);
+                const result = await response.json();
+                sheets = result.data || [];
+                
+                if (sheets.length > 0) {
+                    currentSheet = sheets[0];
+                }
+                
+                renderSpreadsheetList();
+                renderSpreadsheetDetail();
+                
+                if (currentSheet) {
+                    await loadSheetData();
+                }
+            } catch (error) {
+                console.error('Select spreadsheet error:', error);
+                showToast('加载电子表格失败', 'error');
+            }
+        }
+
+        function renderSpreadsheetDetail() {
+            const container = document.getElementById('spreadsheet-detail');
+            
+            if (!currentSpreadsheet) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>请选择一个电子表格开始编辑</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h2 style="margin-bottom: 10px;">📊 ${currentSpreadsheet.title}</h2>
+                    <p style="color: #6b7280; font-family: monospace;">Token: ${currentSpreadsheet.spreadsheet_token}</p>
+                </div>
+
+                <div class="sheet-tabs" id="sheet-tabs"></div>
+
+                <div class="toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn btn-success btn-small" onclick="openAddSheetModal()">+ 工作表</button>
+                        <button class="btn btn-success btn-small" onclick="saveData()">💾 保存</button>
+                        <button class="btn btn-small" onclick="refreshData()">🔄 刷新</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="btn btn-warning btn-small" onclick="openFindReplaceModal()">🔍 查找替换</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <span style="font-weight: 500; color: #6b7280;">范围:</span>
+                        <input type="text" class="input-field" id="read-range" placeholder="A1" style="width: 80px;">
+                        <button class="btn btn-small" onclick="readRange()">读取</button>
+                        <input type="text" class="input-field" id="write-value" placeholder="值" style="width: 150px;">
+                        <button class="btn btn-small" onclick="writeCell()">写入</button>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="grid" id="grid"></div>
+                </div>
+            `;
+
+            renderSheetTabs();
+        }
+
+        function renderSheetTabs() {
+            const container = document.getElementById('sheet-tabs');
+            if (!container) return;
+            
+            container.innerHTML = sheets.map(sheet => `
+                <div class="sheet-tab ${currentSheet?.sheet_id === sheet.sheet_id ? 'active' : ''}" 
+                     onclick="selectSheet('${sheet.sheet_id}')">
+                    <span>📄 ${sheet.title}</span>
+                    <span class="delete-btn" onclick="event.stopPropagation(); deleteSheet('${sheet.sheet_id}')">×</span>
+                </div>
+            `).join('');
+        }
+
+        function openAddSheetModal() {
+            document.getElementById('new-sheet-title').value = '';
+            openModal('add-sheet-modal');
+        }
+
+        async function addSheet() {
+            const title = document.getElementById('new-sheet-title').value.trim();
+            if (!title) {
+                showToast('请输入工作表名称', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/sheets`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('工作表创建成功！');
+                    closeModal('add-sheet-modal');
+                    sheets.push(result.data);
+                    currentSheet = result.data;
+                    renderSheetTabs();
+                    await loadSheetData();
+                } else {
+                    showToast('创建失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('Add sheet error:', error);
+                showToast('创建失败：' + error.message, 'error');
+            }
+        }
+
+        async function deleteSheet(sheetId) {
+            if (!confirm('确定要删除这个工作表吗？')) return;
+
+            try {
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/sheets/${sheetId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('工作表删除成功！');
+                    sheets = sheets.filter(s => s.sheet_id !== sheetId);
+                    if (currentSheet?.sheet_id === sheetId) {
+                        currentSheet = sheets[0] || null;
+                    }
+                    renderSheetTabs();
+                    if (currentSheet) {
+                        await loadSheetData();
+                    } else {
+                        document.getElementById('grid').innerHTML = '';
+                    }
+                } else {
+                    showToast('删除失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('Delete sheet error:', error);
+                showToast('删除失败：' + error.message, 'error');
+            }
+        }
+
+        async function selectSheet(sheetId) {
+            currentSheet = sheets.find(s => s.sheet_id === sheetId);
+            renderSheetTabs();
+            await loadSheetData();
+        }
+
+        async function loadSheetData() {
+            if (!currentSpreadsheet || !currentSheet) return;
+
+            try {
+                const range = `${currentSheet.sheet_id}`;
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/values?range=${encodeURIComponent(range)}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    gridData = result.data.values || [];
+                    renderGrid();
+                }
+            } catch (error) {
+                console.error('Load sheet data error:', error);
+                showToast('加载数据失败', 'error');
+            }
+        }
+
+        function getColumnLetter(index) {
+            let letter = '';
+            while (index >= 0) {
+                letter = String.fromCharCode(65 + (index % 26)) + letter;
+                index = Math.floor(index / 26) - 1;
+            }
+            return letter;
+        }
+
+        function renderGrid() {
+            const container = document.getElementById('grid');
+            if (!container) return;
+            
+            const rows = Math.max(gridData.length + 1, 20);
+            const cols = Math.max(gridData[0]?.length || 0, 10);
+            
+            let html = '';
+            
+            html += `<div class="grid" style="grid-template-columns: 60px repeat(${cols}, 120px);">`;
+            
+            html += `<div class="grid-cell header"></div>`;
+            for (let c = 0; c < cols; c++) {
+                html += `<div class="grid-cell header">${getColumnLetter(c)}</div>`;
+            }
+            
+            for (let r = 0; r < rows; r++) {
+                html += `<div class="grid-cell header">${r + 1}</div>`;
+                for (let c = 0; c < cols; c++) {
+                    const value = gridData[r]?.[c] || '';
+                    const cellId = `${getColumnLetter(c)}${r + 1}`;
+                    html += `
+                        <div class="grid-cell" data-cell="${cellId}" data-row="${r}" data-col="${c}" 
+                             onclick="selectCell(${r}, ${c})">
+                            <input type="text" value="${value || ''}" 
+                                   onchange="updateCellData(${r}, ${c}, this.value)"
+                                   onclick="selectCell(${r}, ${c})">
+                        </div>
+                    `;
+                }
+            }
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function selectCell(row, col) {
+            document.querySelectorAll('.grid-cell').forEach(c => c.classList.remove('selected'));
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (cell) {
+                cell.classList.add('selected');
+                document.getElementById('read-range').value = `${getColumnLetter(col)}${row + 1}`;
+            }
+        }
+
+        function updateCellData(row, col, value) {
+            if (!gridData[row]) {
+                gridData[row] = [];
+            }
+            gridData[row][col] = value;
+        }
+
+        async function readRange() {
+            if (!currentSpreadsheet || !currentSheet) return;
+            
+            const rangeInput = document.getElementById('read-range').value.trim();
+            if (!rangeInput) {
+                showToast('请输入范围', 'error');
+                return;
+            }
+
+            try {
+                const fullRange = `${currentSheet.sheet_id}!${rangeInput}`;
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/values?range=${encodeURIComponent(fullRange)}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    showToast('数据读取成功！');
+                    console.log('Read data:', result.data);
+                    gridData = result.data.values || [];
+                    renderGrid();
+                }
+            } catch (error) {
+                console.error('Read range error:', error);
+                showToast('读取失败：' + error.message, 'error');
+            }
+        }
+
+        async function writeCell() {
+            if (!currentSpreadsheet || !currentSheet) return;
+            
+            const rangeInput = document.getElementById('read-range').value.trim();
+            const value = document.getElementById('write-value').value;
+            
+            if (!rangeInput) {
+                showToast('请选择或输入单元格位置', 'error');
+                return;
+            }
+
+            try {
+                const fullRange = `${currentSheet.sheet_id}!${rangeInput}`;
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/values`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        range: fullRange,
+                        values: [[value]]
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast(`写入成功，更新了 ${result.data.updatedCells} 个单元格`);
+                    await loadSheetData();
+                } else {
+                    showToast('写入失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('Write cell error:', error);
+                showToast('写入失败：' + error.message, 'error');
+            }
+        }
+
+        async function saveData() {
+            if (!currentSpreadsheet || !currentSheet || gridData.length === 0) {
+                showToast('没有数据需要保存', 'error');
+                return;
+            }
+
+            try {
+                const range = `${currentSheet.sheet_id}!A1:${getColumnLetter(gridData[0].length - 1)}${gridData.length}`;
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/values`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        range: range,
+                        values: gridData
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast(`保存成功，更新了 ${result.data.updatedCells} 个单元格`);
+                } else {
+                    showToast('保存失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('Save data error:', error);
+                showToast('保存失败：' + error.message, 'error');
+            }
+        }
+
+        async function refreshData() {
+            await loadSheetData();
+            showToast('数据已刷新');
+        }
+
+        function openFindReplaceModal() {
+            document.getElementById('find-text').value = '';
+            document.getElementById('replace-text').value = '';
+            document.getElementById('match-case').checked = false;
+            document.getElementById('match-entire-cell').checked = false;
+            document.getElementById('search-by-regex').checked = false;
+            openModal('find-replace-modal');
+        }
+
+        async function findAndReplace() {
+            if (!currentSpreadsheet || !currentSheet) return;
+            
+            const find = document.getElementById('find-text').value.trim();
+            const replacement = document.getElementById('replace-text').value;
+            
+            if (!find) {
+                showToast('请输入查找内容', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/sheets/${currentSpreadsheet.spreadsheet_token}/sheets/${currentSheet.sheet_id}/replace`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        find,
+                        replacement,
+                        matchCase: document.getElementById('match-case').checked,
+                        matchEntireCell: document.getElementById('match-entire-cell').checked,
+                        searchByRegex: document.getElementById('search-by-regex').checked
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast(`替换成功，更新了 ${result.data.rows_count} 行`);
+                    closeModal('find-replace-modal');
+                    await loadSheetData();
+                } else {
+                    showToast('替换失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('Find and replace error:', error);
+                showToast('替换失败：' + error.message, 'error');
+            }
+        }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveData();
+            }
+        });
+
+        loadSpreadsheets();
+    </script>
+</body>
+</html>

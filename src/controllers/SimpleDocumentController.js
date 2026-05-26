@@ -54,6 +54,48 @@ class SimpleDocumentController {
     }
   }
 
+  async downloadDocument(req, res, next) {
+    try {
+      const { id } = req.params;
+      const document = await documentService.getDocumentById(id);
+      
+      if (!document) {
+        return res.status(404).json({
+          success: false,
+          message: 'Document not found',
+        });
+      }
+      
+      // 生成模拟的文档内容
+      const content = `
+${document.title}
+===================================
+
+文档ID: ${document.id}
+文档类型: ${document.type}
+创建时间: ${new Date(document.createdAt).toLocaleString('zh-CN')}
+更新时间: ${new Date(document.updatedAt).toLocaleString('zh-CN')}
+查看次数: ${document.viewCount || 0}
+
+这是一个示例文档内容。
+在实际应用中，这里会包含真实的文档内容。
+`.trim();
+      
+      // 设置响应头
+      const filename = `${encodeURIComponent(document.title)}.txt`;
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      
+      // 发送内容
+      res.send(content);
+      
+      logger.info(`Document ${id} downloaded: ${document.title}`);
+    } catch (error) {
+      logger.error('Download document error:', error);
+      next(error);
+    }
+  }
+
   async updateDocument(req, res, next) {
     try {
       const errors = validationResult(req);
